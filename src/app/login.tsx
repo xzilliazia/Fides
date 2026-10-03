@@ -13,6 +13,11 @@ import CustomInput from "../components/CustomInput";
 import PrimaryButton from "../components/PrimaryButton";
 import { COLORS, SIZES } from "../constants/theme";
 
+const quickLinks = [
+  { id: 1, title: "Reservation guide" },
+  { id: 2, title: "contact Front Office (FO)" },
+];
+
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -86,6 +91,24 @@ export default function LoginScreen() {
         </View>
 
         <PrimaryButton title="Sign in" onPress={handleLogin} />
+
+        <View style={{ marginTop: 20 }}>
+          {quickLinks.map((link) => (
+            <TouchableOpacity key={link.id}>
+              <Text
+                style={{
+                  fontSize: 13,
+                  color: "#0066FF",
+                  textAlign: "center",
+                  marginVertical: 4,
+                  textDecorationLine: "underline",
+                }}
+              >
+                {link.title}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
       <Text style={styles.footerText}>Informatics Laboratory © 2026</Text>

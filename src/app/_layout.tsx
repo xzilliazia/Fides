@@ -1,9 +1,11 @@
-import { Stack } from 'expo-router';
-import { useFonts, MontserratAlternates_600SemiBold } from '@expo-google-fonts/montserrat-alternates';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import {
+  MontserratAlternates_600SemiBold,
+  useFonts,
+} from "@expo-google-fonts/montserrat-alternates";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
 
-// Keep the splash screen visible while fetching resources
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
