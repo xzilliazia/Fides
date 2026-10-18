@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
+  Alert,
   Image,
   ImageBackground,
   SafeAreaView,
@@ -24,6 +25,7 @@ export default function LoginScreen() {
   const [remindMe, setRemindMe] = useState(false);
 
   const handleLogin = () => {
+    Alert.alert("Fitur Login", "Fitur login belum diimplementasikan.");
     console.log("Login credentials:", email);
   };
 
@@ -85,7 +87,9 @@ export default function LoginScreen() {
             />
             <Text style={styles.remindMeText}>Remind me</Text>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => Alert.alert("Password Lupa?", "WOWOKWOWK kejebak")}
+          >
             <Text style={styles.forgotText}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>
@@ -94,7 +98,12 @@ export default function LoginScreen() {
 
         <View style={{ marginTop: 20 }}>
           {quickLinks.map((link) => (
-            <TouchableOpacity key={link.id}>
+            <TouchableOpacity
+              key={link.id}
+              onPress={() =>
+                Alert.alert(link.title, "Fitur ini belum diimplementasikan.")
+              }
+            >
               <Text
                 style={{
                   fontSize: 13,
