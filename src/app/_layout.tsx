@@ -23,5 +23,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="login" />
+      <Stack.Screen name="reservation-guide" />
+      <Stack.Screen name="contact-fo" />
+    </Stack>
+  );
 }

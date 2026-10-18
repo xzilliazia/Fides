@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
@@ -15,11 +16,12 @@ import PrimaryButton from "../components/PrimaryButton";
 import { COLORS, SIZES } from "../constants/theme";
 
 const quickLinks = [
-  { id: 1, title: "Reservation guide" },
-  { id: 2, title: "contact Front Office (FO)" },
-];
+  { id: 1, title: "Reservation guide", href: "/reservation-guide" },
+  { id: 2, title: "contact Front Office (FO)", href: "/contact-fo" },
+] as const;
 
 export default function LoginScreen() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remindMe, setRemindMe] = useState(false);
@@ -100,9 +102,7 @@ export default function LoginScreen() {
           {quickLinks.map((link) => (
             <TouchableOpacity
               key={link.id}
-              onPress={() =>
-                Alert.alert(link.title, "Fitur ini belum diimplementasikan.")
-              }
+              onPress={() => router.push(link.href)}
             >
               <Text
                 style={{
