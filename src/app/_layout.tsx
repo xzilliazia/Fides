@@ -39,6 +39,7 @@ export default function RootLayout() {
       <Stack.Screen name="login" />
       <Stack.Screen name="reservation-guide" />
       <Stack.Screen name="contact-fo" />
+      <Stack.Screen name="external-api" />
     </Stack>
   );
 }

@@ -18,6 +18,7 @@ import { COLORS, SIZES } from "../constants/theme";
 const quickLinks = [
   { id: 1, title: "Reservation guide", href: "/reservation-guide" },
   { id: 2, title: "contact Front Office (FO)", href: "/contact-fo" },
+  { id: 3, title: "External API fetch demo", href: "/external-api" },
 ] as const;
 
 export default function LoginScreen() {
@@ -97,7 +98,6 @@ export default function LoginScreen() {
         </View>
 
         <PrimaryButton title="Sign in" onPress={handleLogin} />
-
         <View style={{ marginTop: 20 }}>
           {quickLinks.map((link) => (
             <TouchableOpacity
