@@ -5,6 +5,8 @@ import {
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useRef } from "react";
+import { ActivityIndicator, View } from "react-native";
+import { AuthProvider, useAuth } from "../context/AuthContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -35,11 +37,33 @@ export default function RootLayout() {
   }
 
   return (
+    <AuthProvider>
+      <RootNavigator />
+    </AuthProvider>
+  );
+}
+
+function RootNavigator() {
+  const { session, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  return (
     <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Protected guard={!!session}>
+        <Stack.Screen name="reservation-guide" />
+        <Stack.Screen name="contact-fo" />
+        <Stack.Screen name="external-api" />
+        <Stack.Screen name="token-storage" />
+      </Stack.Protected>
       <Stack.Screen name="login" />
-      <Stack.Screen name="reservation-guide" />
-      <Stack.Screen name="contact-fo" />
-      <Stack.Screen name="external-api" />
     </Stack>
   );
 }

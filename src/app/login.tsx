@@ -1,10 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, type Href } from "expo-router";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Image,
   ImageBackground,
+  Modal,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -14,11 +16,13 @@ import {
 import CustomInput from "../components/CustomInput";
 import PrimaryButton from "../components/PrimaryButton";
 import { COLORS, SIZES } from "../constants/theme";
+import { useAuth } from "../context/AuthContext";
 
 const quickLinks = [
   { id: 1, title: "Reservation guide", href: "/reservation-guide" },
   { id: 2, title: "contact Front Office (FO)", href: "/contact-fo" },
   { id: 3, title: "External API fetch demo", href: "/external-api" },
+  { id: 4, title: "Secure token storage", href: "/token-storage" },
 ] as const;
 
 export default function LoginScreen() {
@@ -26,10 +30,76 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remindMe, setRemindMe] = useState(false);
+  const [signupOpen, setSignupOpen] = useState(false);
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [noticeIsError, setNoticeIsError] = useState(false);
+  const { session, loading: authLoading, configError, signIn, signUp, signOut } = useAuth();
 
-  const handleLogin = () => {
-    Alert.alert("Fitur Login", "Fitur login belum diimplementasikan.");
-    console.log("Login credentials:", email);
+  const handleLogin = async () => {
+    setNotice("");
+    if (!email.trim() || !password) {
+      setNotice("Enter your email and password.");
+      setNoticeIsError(true);
+      return;
+    }
+    setBusy(true);
+    try {
+      await signIn(email.trim(), password);
+      setNotice("Login succeed");
+      setNoticeIsError(false);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Could not sign in.");
+      setNoticeIsError(true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleSignup = async () => {
+    setNotice("");
+    if (!signupEmail.trim() || !signupPassword) {
+      setNotice("Enter an email and password to create an account.");
+      setNoticeIsError(true);
+      return;
+    }
+    if (signupPassword.length < 6) {
+      setNotice("Password must be at least 6 characters.");
+      setNoticeIsError(true);
+      return;
+    }
+    setBusy(true);
+    try {
+      const { needsEmailConfirmation } = await signUp(signupEmail.trim(), signupPassword);
+      setSignupOpen(false);
+      setSignupPassword("");
+      setNotice(needsEmailConfirmation
+        ? "Account created. Check your email to confirm it before signing in."
+        : "Account created and signed in.");
+      setNoticeIsError(false);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Could not create the account.");
+      setNoticeIsError(true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleSignout = async () => {
+    setBusy(true);
+    setNotice("");
+    try {
+      await signOut();
+      setNotice("Signed out.");
+      setNoticeIsError(false);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Could not sign out.");
+      setNoticeIsError(true);
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -97,12 +167,33 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        <PrimaryButton title="Sign in" onPress={handleLogin} />
+        {authLoading ? (
+          <ActivityIndicator color={COLORS.primary} style={styles.authLoading} />
+        ) : session ? (
+          <View>
+            <Text style={styles.signedInText}>Signed in as {session.user.email}</Text>
+            <PrimaryButton title="Sign out" onPress={handleSignout} isLoading={busy} />
+          </View>
+        ) : (
+          <>
+            <PrimaryButton title="Sign in" onPress={handleLogin} isLoading={busy} />
+            <TouchableOpacity
+              style={styles.signupLink}
+              onPress={() => { setNotice(""); setSignupOpen(true); }}
+            >
+              <Text style={styles.signupLinkText}>Create an account</Text>
+            </TouchableOpacity>
+          </>
+        )}
+        {configError ? <Text style={styles.errorText}>{configError}</Text> : null}
+        {notice ? (
+          <Text style={noticeIsError ? styles.errorText : styles.successText}>{notice}</Text>
+        ) : null}
         <View style={{ marginTop: 20 }}>
           {quickLinks.map((link) => (
             <TouchableOpacity
               key={link.id}
-              onPress={() => router.push(link.href)}
+              onPress={() => router.push(link.href as Href)}
             >
               <Text
                 style={{
@@ -121,6 +212,46 @@ export default function LoginScreen() {
       </View>
 
       <Text style={styles.footerText}>Informatics Laboratory © 2026</Text>
+      <Modal
+        visible={signupOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSignupOpen(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Create account</Text>
+            <CustomInput
+              label="Email address"
+              iconName="mail-outline"
+              placeholder="you@example.com"
+              value={signupEmail}
+              onChangeText={setSignupEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <CustomInput
+              label="Password"
+              iconName="lock-closed-outline"
+              placeholder="At least 6 characters"
+              value={signupPassword}
+              onChangeText={setSignupPassword}
+              isPassword
+              autoCapitalize="none"
+            />
+            {notice && noticeIsError ? <Text style={styles.errorText}>{notice}</Text> : null}
+            <PrimaryButton title="Sign up" onPress={handleSignup} isLoading={busy} />
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setSignupOpen(false)}
+              disabled={busy}
+            >
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -224,4 +355,20 @@ const styles = StyleSheet.create({
     bottom: 30,
     width: "100%",
   },
+  signupLink: { alignSelf: "center", paddingVertical: 14 },
+  signupLinkText: { color: COLORS.primary, fontSize: 14, fontWeight: "600" },
+  authLoading: { marginVertical: 16 },
+  signedInText: { color: COLORS.textSecondary, textAlign: "center", marginBottom: 12 },
+  successText: { color: "#188038", textAlign: "center", marginTop: 12 },
+  errorText: { color: "#B3261E", textAlign: "center", marginTop: 12 },
+  modalBackdrop: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 24,
+    backgroundColor: "rgba(0,0,0,0.45)",
+  },
+  modalCard: { backgroundColor: COLORS.card, borderRadius: SIZES.cardRadius, padding: 24 },
+  modalTitle: { color: COLORS.textPrimary, fontSize: 22, fontWeight: "bold", textAlign: "center", marginBottom: 20 },
+  cancelButton: { alignItems: "center", padding: 14 },
+  cancelText: { color: COLORS.textSecondary, fontWeight: "600" },
 });
