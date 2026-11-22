@@ -24,7 +24,13 @@ export default function CustomInput({ label, iconName, isPassword = false, ...pr
           {...props}
         />
         {isPassword && (
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <TouchableOpacity
+            onPress={() => setShowPassword(!showPassword)}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={showPassword ? "Hide password" : "Show password"}
+            accessibilityState={{ selected: showPassword }}
+          >
             <Ionicons 
               name={showPassword ? "eye-outline" : "eye-off-outline"} 
               size={20} 

@@ -57,13 +57,15 @@ function RootNavigator() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
+      <Stack.Screen name="reservation-guide" />
+      <Stack.Screen name="contact-fo" />
       <Stack.Protected guard={!!session}>
-        <Stack.Screen name="reservation-guide" />
-        <Stack.Screen name="contact-fo" />
-        <Stack.Screen name="external-api" />
+        <Stack.Screen name="home" />
         <Stack.Screen name="token-storage" />
       </Stack.Protected>
-      <Stack.Screen name="login" />
+      <Stack.Protected guard={!session}>
+        <Stack.Screen name="login" />
+      </Stack.Protected>
     </Stack>
   );
 }
